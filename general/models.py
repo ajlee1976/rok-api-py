@@ -299,7 +299,7 @@ class Kingdom:
     @property
     def next_barracks_cost(self) -> Resources:
         return Resources(
-            money=275 * (self.barracks**2),
+            money=(275 * (self.barracks**3)) / 2,
             lumber=0 if self.barracks <= 25 else (self.barracks**3),
         )
 

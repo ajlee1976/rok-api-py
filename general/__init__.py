@@ -1,1 +1,8 @@
-from .models import Response, Alliance, Kingdom, AlliancesQuery, KingdomQuery, KingdomsQuery
+from .models import (
+    Response,
+    Alliance,
+    Kingdom,
+    AlliancesQuery,
+    KingdomQuery,
+    KingdomsQuery,
+)

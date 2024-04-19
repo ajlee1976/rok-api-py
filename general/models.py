@@ -2,6 +2,7 @@ from __future__ import annotations
 from httpx import Client, AsyncClient, Response as httpxResponse
 from typing import Any, TypedDict
 from functools import cached_property
+from dataclasses import dataclass
 from math import floor
 
 class ApiCall:
@@ -64,7 +65,7 @@ class Response:
 # Typed Dicts
 
 
-class Resources(TypedDict, total=False):
+class ResourcesDict(TypedDict, total=False):
     money: float
     food: float
     water: float
@@ -72,7 +73,29 @@ class Resources(TypedDict, total=False):
     iron: float
 
 
+@dataclass
+class Resources:
+    money: float = 0
+    food: float = 0
+    water: float = 0
+    lumber: float = 0
+    iron: float = 0
+
+    def to_dict(self) -> ResourcesDict:
+        return {
+            "money": self.money,
+            "food": self.food,
+            "water": self.water,
+            "lumber": self.lumber,
+            "iron": self.iron,
+        }
+
+    @classmethod
+    def from_dict(cls, resources: ResourcesDict) -> Resources:
+        return cls(**resources)
+
 # Queries
+
 
 class AlliancesQuery(ApiCall):
     def __init__(self, alliance_id: int):
@@ -152,21 +175,21 @@ class Kingdom:
 
     @property
     def educated_population(self) -> int:
-        return self.schools * 100
+        return min(self.schools * 100, self.population)
 
     @cached_property
     def total_buildings(self) -> int:
         return (
             self.housing +
-            + self.farms
-            + self.water_wells
-            + self.lumber_mill
-            + self.iron_mines
-            + self.barracks
-            + self.docks
-            + self.watch_towers
-            + self.hospitals
-            + self.schools
+            self.farms +
+            self.water_wells +
+            self.lumber_mill +
+            self.iron_mines +
+            self.barracks +
+            self.docks +
+            self.watch_towers + 
+            self.hospitals +
+            self.schools
         )
 
     @cached_property
@@ -189,8 +212,8 @@ class Kingdom:
 
     @cached_property
     def income(self) -> Resources:
-        return {
-            "money": round(
+        return Resources(
+            money=round(
                 (((
                     (self.kingdom_population + (self.educated_population * 6)) -
                     (self.warriors + (self.calvary * 5) + (self.ships * 25))
@@ -200,23 +223,92 @@ class Kingdom:
                     (self.ships * 1000)
                 ), 2
             ),
-            "water": round(
+            water=round(
                 (self.water_wells * 75) - ((
                     (self.kingdom_population * 1) +
                     (self.warriors * 2) +
                     (self.calvary * 4)
                 ) / 4) - (self.farms * 2.5), 2
             ),
-            "lumber": round(self.lumber_mill * 2.15, 2),
-            "iron": round(self.iron_mines * 2.15, 2),
-            "food": round(
+            lumber=round(self.lumber_mill * 2.15, 2),
+            iron=round(self.iron_mines * 2.15, 2),
+            food=round(
                 (self.farms * 75) - ((
                     self.kingdom_population +
                     (self.warriors * 2) +
                     (self.calvary * 4)
                 ) / 4), 2
             )
-        }
+        )
+
+    @property
+    def next_barracks_cost(self) -> Resources:
+        return Resources(
+            money=275 * (self.barracks ** 2),
+            lumber=0 if self.barracks < 25 else (self.barracks ** 3)
+        )
+
+    @property
+    def next_dock_cost(self) -> Resources:
+        return Resources(
+            money=2750 * (self.docks ** 3),
+            lumber=0 if self.docks < 25 else (self.docks ** 4)
+        )
+
+    @property
+    def next_farm_cost(self) -> Resources:
+        return Resources(
+            money=1250 * (self.farms ** 2),
+            lumber=0 if self.farms < 25 else (5 * (self.farms ** 2))
+        )
+
+    @property
+    def next_hospital_cost(self) -> Resources:
+        return Resources(
+            money=2250 * (self.hospitals ** 2),
+            lumber=0 if self.hospitals < 25 else (self.hospitals ** 2)
+        )
+
+    @property
+    def next_housing_cost(self) -> Resources:
+        return Resources(
+            money=self.housing ** 4,
+        )
+
+    @property
+    def next_iron_mine_cost(self) -> Resources:
+        return Resources(
+            money=2500 * (self.iron_mines ** 2),
+            lumber=0 if self.iron_mines < 25 else (self.iron_mines ** 2)
+        )
+
+    @property
+    def next_lumber_mill_cost(self) -> Resources:
+        return Resources(
+            money=2500 * (self.lumber_mill ** 2),
+            iron=0 if self.lumber_mill < 25 else (self.lumber_mill ** 2)
+        )
+
+    @property
+    def next_school_cost(self) -> Resources:
+        return Resources(
+            money=2750 * (self.schools ** 2),
+            lumber=0 if self.schools < 25 else (self.schools ** 2)
+        )
+
+    @property
+    def next_watch_tower_cost(self) -> Resources:
+        return Resources(
+            money=4500 * (self.watch_towers ** 2),
+            lumber=0 if self.watch_towers < 25 else (self.watch_towers ** 4)
+        )
+
+    @property
+    def next_water_well_cost(self) -> Resources:
+        return Resources(
+            money=1250 * (self.water_wells ** 2),
+            lumber=0 if self.water_wells < 25 else (5 * (self.water_wells ** 2))
+        )
 
 
 class AllianceResponse(Response, Alliance):

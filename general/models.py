@@ -1,7 +1,8 @@
 from __future__ import annotations
 from httpx import Client, AsyncClient, Response as httpxResponse
-from typing import Any
-
+from typing import Any, TypedDict
+from functools import cached_property
+from math import floor
 
 class ApiCall:
     URL: str
@@ -60,6 +61,18 @@ class Response:
 
         return responses
 
+# Typed Dicts
+
+
+class Resources(TypedDict, total=False):
+    money: float
+    food: float
+    water: float
+    lumber: float
+    iron: float
+
+
+# Queries
 
 class AlliancesQuery(ApiCall):
     def __init__(self, alliance_id: int):
@@ -104,15 +117,21 @@ class Alliance:
 
 class Kingdom:
     kingdom_id: int
+    id: int
     kingdom_name: str
+    name: str
     kingdom_leader: str
+    leader: str
     kingdom_score: float
+    score: float
     kingdom_population: int
-    kingdom_id: int
+    population: int
+    warriors: int
     calvary: int
+    cavalry: int
     ships: int
     housing: int
-    housing: int
+    farms: int
     water_wells: int
     lumber_mill: int
     iron_mines: int
@@ -123,13 +142,86 @@ class Kingdom:
     schools: int
     defensive_slots: int
 
+    @property
+    def max_population(self) -> int:
+        return (self.housing * 100) + 100
+
+    @property
+    def population_growth(self) -> int:
+        return floor((self.housing * 10) * (1 - self.disease))
+
+    @property
+    def educated_population(self) -> int:
+        return self.schools * 100
+
+    @cached_property
+    def total_buildings(self) -> int:
+        return (
+            self.housing +
+            + self.farms
+            + self.water_wells
+            + self.lumber_mill
+            + self.iron_mines
+            + self.barracks
+            + self.docks
+            + self.watch_towers
+            + self.hospitals
+            + self.schools
+        )
+
+    @cached_property
+    def crime(self) -> float:
+        return 1 - (((self.kingdom_population / (self.total_buildings - self.watch_towers - self.hospitals + 1)) - (self.watch_towers * 10)) / 100)
+
+    @cached_property
+    def disease(self) -> float:
+        return 1 - (((self.kingdom_population / (self.total_buildings - self.watch_towers - self.hospitals + 1) * 2) - (self.hospitals * 5)) / 100)
+
+    @cached_property
+    def income(self) -> Resources:
+        return {
+            "money": round(
+                (((
+                    (self.kingdom_population + (self.educated_population * 6)) -
+                    (self.warriors + (self.calvary * 5) + (self.ships * 25))
+                ) * 15) * self.crime) - (
+                    (self.warriors * 10) +
+                    (self.calvary * 100) +
+                    (self.ships * 1000)
+                ), 2
+            ),
+            "water": round(
+                (self.water_wells * 75) - ((
+                    (self.kingdom_population * 1) +
+                    (self.warriors * 2) +
+                    (self.calvary * 4)
+                ) / 4) - (self.farms * 2.5), 2
+            ),
+            "lumber": round(self.lumber_mill * 2.15, 2),
+            "iron": round(self.iron_mines * 2.15, 2),
+            "food": round(
+                (self.farms * 75) - ((
+                    self.kingdom_population +
+                    (self.warriors * 2) +
+                    (self.calvary * 4)
+                ) / 4), 2
+            )
+        }
+
 
 class AllianceResponse(Response, Alliance):
     ...
 
 
 class KingdomResponse(Response, Kingdom):
-    ...
+    _ALIASES = {
+        "kingdom_population": "population",
+        "calvary": "cavalry",
+        "kingdom_id": "id",
+        "kingdom_name": "name",
+        "kingdom_leader": "leader",
+        "kingdom_score": "score",
+    }
 
 
 class KingdomsResponse(Response):

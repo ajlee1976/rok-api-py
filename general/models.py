@@ -117,18 +117,18 @@ class Alliance:
 
 class Kingdom:
     kingdom_id: int
-    id: int
+    id: int  # Alias of kingdom_id
     kingdom_name: str
-    name: str
+    name: str  # Alias of kingdom_name
     kingdom_leader: str
-    leader: str
+    leader: str  # Alias of kingdom_leader
     kingdom_score: float
-    score: float
+    score: float  # Alias of kingdom_score
     kingdom_population: int
-    population: int
+    population: int  # Alias of kingdom_population
     warriors: int
     calvary: int
-    cavalry: int
+    cavalry: int  # Alias of calvary
     ships: int
     housing: int
     farms: int

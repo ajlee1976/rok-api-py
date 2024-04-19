@@ -296,70 +296,78 @@ class Kingdom:
     def next_barracks_cost(self) -> Resources:
         return Resources(
             money=275 * (self.barracks**2),
-            lumber=0 if self.barracks < 25 else (self.barracks**3),
+            lumber=0 if self.barracks <= 25 else (self.barracks**3),
         )
 
     @property
     def next_dock_cost(self) -> Resources:
         return Resources(
-            money=2750 * (self.docks**3),
-            lumber=0 if self.docks < 25 else (self.docks**4),
+            money=(2750 * (self.docks**3) / 2),
+            lumber=0 if self.docks <= 25 else (self.docks**4),
         )
 
     @property
     def next_farm_cost(self) -> Resources:
         return Resources(
-            money=1250 * (self.farms**2),
-            lumber=0 if self.farms < 25 else (5 * (self.farms**2)),
+            money=(1250 * (self.farms**2) / 2),
+            lumber=0 if self.farms <= 25 else (5 * (self.farms**2)),
         )
 
     @property
     def next_hospital_cost(self) -> Resources:
         return Resources(
-            money=2250 * (self.hospitals**2),
-            lumber=0 if self.hospitals < 25 else (self.hospitals**2),
+            money=(2250 * (self.hospitals**2) / 2),
+            lumber=0 if self.hospitals <= 25 else (self.hospitals**2),
         )
 
     @property
     def next_housing_cost(self) -> Resources:
         return Resources(
-            money=self.housing**4,
+            money=(self.housing**4 / 2),
         )
 
     @property
     def next_iron_mine_cost(self) -> Resources:
         return Resources(
-            money=2500 * (self.iron_mines**2),
-            lumber=0 if self.iron_mines < 25 else (self.iron_mines**2),
+            money=(2500 * (self.iron_mines**2) / 2),
+            lumber=0 if self.iron_mines <= 25 else (self.iron_mines**2),
         )
 
     @property
     def next_lumber_mill_cost(self) -> Resources:
         return Resources(
-            money=2500 * (self.lumber_mill**2),
-            iron=0 if self.lumber_mill < 25 else (self.lumber_mill**2),
+            money=(2500 * (self.lumber_mill**2) / 2),
+            iron=0 if self.lumber_mill <= 25 else (self.lumber_mill**2),
         )
 
     @property
     def next_school_cost(self) -> Resources:
         return Resources(
-            money=2750 * (self.schools**2),
-            lumber=0 if self.schools < 25 else (self.schools**2),
+            money=(2750 * (self.schools**2) / 2),
+            lumber=0 if self.schools <= 25 else (self.schools**2),
         )
 
     @property
     def next_watch_tower_cost(self) -> Resources:
         return Resources(
-            money=4500 * (self.watch_towers**2),
-            lumber=0 if self.watch_towers < 25 else (self.watch_towers**4),
+            money=(4500 * (self.watch_towers**2) / 2),
+            lumber=0 if self.watch_towers <= 25 else (self.watch_towers**4),
         )
 
     @property
     def next_water_well_cost(self) -> Resources:
         return Resources(
-            money=1250 * (self.water_wells**2),
-            lumber=0 if self.water_wells < 25 else (5 * (self.water_wells**2)),
+            money=(1250 * (self.water_wells**2) / 2),
+            lumber=0 if self.water_wells <= 25 else (5 * (self.water_wells**2)),
         )
+
+    @property
+    def lower_range(self) -> float:
+        return self.score * 0.5
+
+    @property
+    def upper_range(self) -> float:
+        return self.score * 1.5
 
 
 class AllianceResponse(Response, Alliance): ...

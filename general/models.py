@@ -1,9 +1,21 @@
 from __future__ import annotations
 from httpx import Client, AsyncClient, Response as httpxResponse
 from typing import Any, TypedDict
-from functools import cached_property
+from functools import cached_property, cache
 from dataclasses import dataclass
 from math import floor
+
+__all__ = (
+    "ApiCall",
+    "Response",
+    "Resources",
+    "ResourcesDict",
+    "AlliancesQuery",
+    "KingdomQuery",
+    "KingdomsQuery",
+    "Alliance",
+    "Kingdom",
+)
 
 
 class ApiCall:
@@ -143,6 +155,12 @@ class Alliance:
     alliance_member_count: int
     member_count: int  # Alias of alliance_member_count
     government_ids: int
+
+    @cache
+    async def get_alliance_members(self):
+        from .web import fetch_members
+
+        return await fetch_members(self.id, self.member_count)
 
 
 class Kingdom:

@@ -135,9 +135,13 @@ class KingdomsQuery(ApiCall):
 
 class Alliance:
     alliance_id: int
+    id: int  # Alias of alliance_id
     alliance_name: str
+    name: str  # Alias of alliance_name
     alliance_score: float
+    score: float  # Alias of alliance_score
     alliance_member_count: int
+    member_count: int  # Alias of alliance_member_count
     government_ids: int
 
 
@@ -370,7 +374,13 @@ class Kingdom:
         return self.score * 1.5
 
 
-class AllianceResponse(Response, Alliance): ...
+class AllianceResponse(Response, Alliance):
+    _ALIASES = {
+        "alliance_id": "id",
+        "alliance_name": "name",
+        "alliance_score": "score",
+        "alliance_member_count": "member_count",
+    }
 
 
 class KingdomResponse(Response, Kingdom):
@@ -387,3 +397,6 @@ class KingdomResponse(Response, Kingdom):
 class KingdomsResponse(Response):
     _RESOLVERS = {"kingdoms": KingdomResponse}
     kingdoms: list[Kingdom]
+
+    def convert_to_id_map(self) -> dict[int:Kingdom]:
+        return {k.id: k for k in self.kingdoms}

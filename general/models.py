@@ -171,11 +171,21 @@ class Kingdom:
 
     @cached_property
     def crime(self) -> float:
-        return 1 - (((self.kingdom_population / (self.total_buildings - self.watch_towers - self.hospitals + 1)) - (self.watch_towers * 10)) / 100)
+        return round(
+            min(max((
+                ((self.kingdom_population / (self.total_buildings - self.watch_towers - self.hospitals + 1)) - (self.watch_towers * 10)) / 100
+            ), 0), 1),
+            4
+        )
 
     @cached_property
     def disease(self) -> float:
-        return 1 - (((self.kingdom_population / (self.total_buildings - self.watch_towers - self.hospitals + 1) * 2) - (self.hospitals * 5)) / 100)
+        return round(
+            min(max((
+                ((self.kingdom_population / (self.total_buildings - self.watch_towers - self.hospitals + 1) * 2) - (self.hospitals * 5)) / 100
+            ), 0), 1),
+            4
+        )
 
     @cached_property
     def income(self) -> Resources:
@@ -184,7 +194,7 @@ class Kingdom:
                 (((
                     (self.kingdom_population + (self.educated_population * 6)) -
                     (self.warriors + (self.calvary * 5) + (self.ships * 25))
-                ) * 15) * self.crime) - (
+                ) * 15) * (1 - self.crime)) - (
                     (self.warriors * 10) +
                     (self.calvary * 100) +
                     (self.ships * 1000)

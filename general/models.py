@@ -117,7 +117,7 @@ class AlliancesQuery(ApiCall):
         super().__init__(route=f"/alliance/{alliance_id}")
 
     async def fetch(self) -> AllianceResponse:
-        return AllianceResponse.parse(await self._fetch())[0]  # noqa
+        return AllianceResponse.parse((await self._fetch()).json())[0]  # noqa
 
     def sync_fetch(self) -> AllianceResponse:
         return AllianceResponse.parse(self._sync_fetch().json())[0]  # noqa
@@ -128,7 +128,7 @@ class KingdomQuery(ApiCall):
         super().__init__(route=f"/kingdom/{kingdom_id}")
 
     async def fetch(self) -> KingdomResponse:
-        return KingdomResponse.parse(await self._fetch())[0]  # noqa
+        return KingdomResponse.parse((await self._fetch()).json())[0]  # noqa
 
     def sync_fetch(self) -> KingdomResponse:
         return KingdomResponse.parse(self._sync_fetch().json())[0]  # noqa
@@ -139,7 +139,7 @@ class KingdomsQuery(ApiCall):
         super().__init__(route=f"/kingdoms/")
 
     async def fetch(self) -> KingdomsResponse:
-        return KingdomsResponse.parse(await self._fetch())[0]  # noqa
+        return KingdomsResponse.parse((await self._fetch()).json())[0]  # noqa
 
     def sync_fetch(self) -> KingdomsResponse:
         return KingdomsResponse.parse(self._sync_fetch().json())[0]  # noqa
